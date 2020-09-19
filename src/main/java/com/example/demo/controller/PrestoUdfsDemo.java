@@ -349,7 +349,7 @@ public class PrestoUdfsDemo {
 	})
 	@RequestMapping(value = "/testSubnumber", method = RequestMethod.POST)
 	public List<Map<String, Object>> testSubnumber(){
-		String sql = "select subnumber(20200101, 3) from mysql.test01.student";
+		String sql = "select truncate(number, -2) from mysql.test01.test_security";
 		return jt.queryForList(sql);
 
 	}
@@ -365,9 +365,31 @@ public class PrestoUdfsDemo {
 	})
 	@RequestMapping(value = "/testYear", method = RequestMethod.POST)
 	public List<Map<String, Object>> testYear(){
-		String sql = "select minute(create_time) from mysql.test01.t_file_log";
+		// String sql = "select minute(create_time) from mysql.test01.t_file_log";
+		String sql = "select id, date_trunc('month', create_time) from mysql.test01.t_file_log";
 		return jt.queryForList(sql);
 
+	}
+
+	public static String maskIPv6(String input) {
+		// 定义正则表达式
+		String regex = "^\\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?\\s*$";
+		// 判断ip地址是否与正则表达式匹配
+		if (!input.matches(regex)) {
+			return "123";
+		}
+		StringBuffer sb = new StringBuffer();
+		String[] tempArry;
+		String[] strs;
+		if (input.contains("::")) {
+			tempArry = input.split("\\::");
+			strs = tempArry[1].split("\\:");
+			sb.append(tempArry[0]).append(".").append(strs[0]).append(".*.*");
+		} else {
+			strs = input.split("\\:");
+			sb.append(strs[0]).append(".").append(strs[1]).append(".*.*");
+		}
+		return sb.toString();
 	}
 
 	public static void main(String[] args) {
@@ -377,5 +399,9 @@ public class PrestoUdfsDemo {
 		System.out.println(exsubstr("ad12min", 1,3));
 
 		System.out.println("abcd".indexOf("A"));
+
+		String str = String.format("%03d", 11);
+		System.out.println(str);
+		System.out.println(maskIPv6("fe80::74a1:568f:eb4c:d67a%16"));
 	}
 }
